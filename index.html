@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bulk SMS Manager</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header><div><h1>Bulk SMS Manager</h1><p>Campaign dashboard · Demo mode</p></div><a class="header-link" href="/logout">Log out</a></header>
+<main>
+  <div class="notice"><strong>Demo mode:</strong> no real SMS messages are sent.</div>
+  <section class="card">
+    <h2>New campaign</h2>
+    <form action="/campaign" method="post" enctype="multipart/form-data">
+      <label for="message">Message (maximum 1000 characters)</label>
+      <textarea id="message" name="message" maxlength="1000" rows="4" required placeholder="Write your message..."></textarea>
+      <label for="numbers">Phone numbers</label>
+      <textarea id="numbers" name="numbers_text" rows="4" placeholder="+919876543210&#10;+14155552671"></textarea>
+      <p class="muted">Enter one number per line, or separate numbers with commas or spaces.</p>
+      <label for="contacts">Or upload a CSV file</label>
+      <input id="contacts" type="file" name="contacts_file" accept=".csv,text/csv">
+      <label class="checkbox"><input type="checkbox" name="consent" value="yes" required> I confirm all recipients have agreed to receive these messages.</label>
+      <button type="submit">Create demo campaign</button>
+    </form>
+  </section>
+  <section class="card">
+    <h2>Recent campaigns</h2>
+    {% if campaigns %}
+    <div class="table-wrap"><table><thead><tr><th>ID</th><th>Created (UTC)</th><th>Recipients</th><th>Status</th><th></th></tr></thead><tbody>
+    {% for campaign in campaigns %}
+      <tr><td>{{ campaign.id }}</td><td>{{ campaign.created_at[:19].replace('T',' ') }}</td><td>{{ campaign.total }}</td><td>{{ campaign.status }}</td><td><a href="/campaign/{{ campaign.id }}">Details</a></td></tr>
+    {% endfor %}
+    </tbody></table></div>
+    {% else %}<p class="muted">No campaigns yet.</p>{% endif %}
+  </section>
+</main>
+</body>
+</html>

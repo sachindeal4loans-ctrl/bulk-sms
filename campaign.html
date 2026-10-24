@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Campaign details</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body><main>
+  <section class="card">
+    <h1>Campaign #{{ campaign.id }}</h1>
+    <p><strong>Status:</strong> {{ campaign.status }}</p>
+    <p><strong>Created:</strong> {{ campaign.created_at }}</p>
+    <h2>Message</h2><pre>{{ campaign.message }}</pre>
+    <h2>Recipients ({{ recipients|length }})</h2>
+    <div class="table-wrap"><table><thead><tr><th>Phone</th><th>Status</th><th>Details</th></tr></thead><tbody>
+    {% for recipient in recipients %}<tr><td>{{ recipient.phone }}</td><td>{{ recipient.status }}</td><td>{{ recipient.detail }}</td></tr>{% endfor %}
+    </tbody></table></div>
+    <p><a href="/">Back to dashboard</a></p>
+  </section>
+</main></body></html>
