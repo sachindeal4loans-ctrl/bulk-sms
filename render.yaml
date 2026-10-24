@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: bulk-sms-manager
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: APP_SECRET
+        generateValue: true
