@@ -3,19 +3,34 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Campaign details</title>
+  <title>Campaign #{{ campaign.id }} · Bulk SMS Manager</title>
   <link rel="stylesheet" href="/static/style.css">
 </head>
-<body><main>
-  <section class="card">
-    <h1>Campaign #{{ campaign.id }}</h1>
-    <p><strong>Status:</strong> {{ campaign.status }}</p>
-    <p><strong>Created:</strong> {{ campaign.created_at }}</p>
-    <h2>Message</h2><pre>{{ campaign.message }}</pre>
-    <h2>Recipients ({{ recipients|length }})</h2>
-    <div class="table-wrap"><table><thead><tr><th>Phone</th><th>Status</th><th>Details</th></tr></thead><tbody>
-    {% for recipient in recipients %}<tr><td>{{ recipient.phone }}</td><td>{{ recipient.status }}</td><td>{{ recipient.detail }}</td></tr>{% endfor %}
-    </tbody></table></div>
-    <p><a href="/">Back to dashboard</a></p>
-  </section>
-</main></body></html>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <a class="brand" href="/"><span class="brand-mark small">B</span><span>Bulk SMS<span class="brand-light">Manager</span></span></a>
+    <div class="nav-label">WORKSPACE</div>
+    <a class="nav-item" href="/"><span>▦</span> Dashboard</a>
+    <a class="nav-item active" href="/"> <span>◷</span> Campaign history</a>
+    <div class="sidebar-bottom"><div class="demo-badge"><span class="dot"></span> Demo mode</div><a class="nav-item logout" href="/logout"><span>↪</span> Log out</a></div>
+  </aside>
+  <main class="main-content">
+    <header class="topbar"><div><p class="eyebrow">WORKSPACE / CAMPAIGNS</p><h1>Campaign #{{ campaign.id }}</h1></div><a class="btn btn-outline" href="/">← Dashboard</a></header>
+    <div class="alert alert-warning"><strong>Demo mode:</strong> no real SMS messages were sent.</div>
+    <section class="panel">
+      <div class="section-heading"><div><p class="eyebrow">CAMPAIGN SUMMARY</p><h2>Campaign details</h2></div><span class="status-pill neutral">{{ campaign.status }}</span></div>
+      <div class="detail-grid"><div class="detail-box"><span class="stat-label">Campaign ID</span><strong>#{{ campaign.id }}</strong></div><div class="detail-box"><span class="stat-label">Recipients</span><strong>{{ campaign.total }}</strong></div><div class="detail-box"><span class="stat-label">Created (UTC)</span><strong>{{ campaign.created_at }}</strong></div></div>
+      <h3>Message content</h3><div class="message-box">{{ campaign.message }}</div>
+    </section>
+    <section class="panel">
+      <div class="section-heading"><div><p class="eyebrow">RECIPIENT LIST</p><h2>Recipients <span class="muted-count">({{ recipients|length }})</span></h2></div></div>
+      <div class="table-wrap"><table><thead><tr><th>Phone number</th><th>Status</th><th>Details</th></tr></thead><tbody>
+      {% for recipient in recipients %}<tr><td>{{ recipient.phone }}</td><td><span class="status-pill neutral">{{ recipient.status }}</span></td><td>{{ recipient.detail }}</td></tr>{% endfor %}
+      </tbody></table></div>
+      <p class="back-row"><a class="table-link" href="/">← Back to dashboard</a></p>
+    </section>
+  </main>
+</div>
+</body>
+</html>

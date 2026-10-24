@@ -14,7 +14,7 @@ from starlette.middleware.sessions import SessionMiddleware
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.getenv("DB_PATH", os.path.join(BASE_DIR, "bulk_sms.db"))
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "")
-APP_SECRET = os.getenv("APP_SECRET", "change-this-secret-before-deploying")
+APP_SECRET = os.getenv("APP_SECRET", "replace-with-a-long-random-secret")
 
 app = FastAPI(title="Bulk SMS Manager")
 app.add_middleware(
@@ -28,7 +28,6 @@ STATIC_DIR = os.path.join(BASE_DIR, "static")
 TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")
 os.makedirs(STATIC_DIR, exist_ok=True)
 os.makedirs(TEMPLATES_DIR, exist_ok=True)
-
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 templates = Jinja2Templates(directory=TEMPLATES_DIR)
 
@@ -40,24 +39,20 @@ def connect():
 
 
 with connect() as conn:
-    conn.execute(
-        """CREATE TABLE IF NOT EXISTS campaigns (
+    conn.execute("""CREATE TABLE IF NOT EXISTS campaigns (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         created_at TEXT NOT NULL,
         message TEXT NOT NULL,
         total INTEGER NOT NULL,
         status TEXT NOT NULL
-        )"""
-    )
-    conn.execute(
-        """CREATE TABLE IF NOT EXISTS recipients (
+    )""")
+    conn.execute("""CREATE TABLE IF NOT EXISTS recipients (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         campaign_id INTEGER NOT NULL,
         phone TEXT NOT NULL,
         status TEXT NOT NULL,
         detail TEXT NOT NULL
-        )"""
-    )
+    )""")
 
 
 def logged_in(request: Request) -> bool:
@@ -68,10 +63,9 @@ def normalize_phone(value: str):
     value = re.sub(r"[()\s.-]", "", value.strip())
     if value.startswith("00"):
         value = "+" + value[2:]
-    if value.startswith("+") and value[1:].isdigit() and 8 <= len(value[1:]) <= 15:
-        return value
-    if value.isdigit() and 8 <= len(value) <= 15:
-        return value
+    digits = value[1:] if value.startswith("+") else value
+    if digits.isdigit() and 8 <= len(digits) <= 15:
+        return ("+" if value.startswith("+") else "") + digits
     return None
 
 
@@ -82,18 +76,21 @@ def health():
 
 @app.get("/login", response_class=HTMLResponse)
 def login_page(request: Request):
+    if not ADMIN_PASSWORD:
+        return HTMLResponse(
+            "Admin login is not configured. Set ADMIN_PASSWORD in your hosting environment.",
+            status_code=503,
+        )
     return templates.TemplateResponse(
-        request=request,
-        name="login.html",
-        context={"error": ""},
+        request=request, name="login.html", context={"error": ""}
     )
 
 
-@app.post("/login")
+@app.post("/login", response_class=HTMLResponse)
 def login(request: Request, password: str = Form(...)):
     if not ADMIN_PASSWORD:
         return HTMLResponse(
-            "ADMIN_PASSWORD is empty. Add it in Render → service → Environment.",
+            "Admin login is not configured. Set ADMIN_PASSWORD in your hosting environment.",
             status_code=503,
         )
     if password != ADMIN_PASSWORD:
@@ -119,12 +116,20 @@ def home(request: Request):
         return RedirectResponse("/login", status_code=303)
     with connect() as conn:
         campaigns = conn.execute(
-            "SELECT * FROM campaigns ORDER BY id DESC LIMIT 25"
+            "SELECT * FROM campaigns ORDER BY id DESC LIMIT 50"
         ).fetchall()
+        total_campaigns = conn.execute("SELECT COUNT(*) FROM campaigns").fetchone()[0]
+        total_recipients = conn.execute(
+            "SELECT COALESCE(SUM(total),0) FROM campaigns"
+        ).fetchone()[0]
     return templates.TemplateResponse(
         request=request,
         name="index.html",
-        context={"campaigns": campaigns},
+        context={
+            "campaigns": campaigns,
+            "total_campaigns": total_campaigns,
+            "total_recipients": total_recipients,
+        },
     )
 
 
@@ -139,31 +144,28 @@ async def create_campaign(
     if not logged_in(request):
         return RedirectResponse("/login", status_code=303)
     if consent != "yes":
-        return HTMLResponse(
-            "Confirm that all recipients agreed to receive these messages.",
-            status_code=400,
-        )
+        return HTMLResponse("Please confirm that recipients opted in.", status_code=400)
+
     message = message.strip()
     if not message or len(message) > 1000:
-        return HTMLResponse("Message must be 1–1000 characters.", status_code=400)
+        return HTMLResponse("Message must be between 1 and 1000 characters.", status_code=400)
 
     raw_numbers = [item for item in re.split(r"[,;\s]+", numbers_text) if item]
     if contacts_file and contacts_file.filename:
-        data = (await contacts_file.read()).decode("utf-8-sig", errors="replace")
-        for row in csv.reader(io.StringIO(data)):
+        content = (await contacts_file.read()).decode("utf-8-sig", errors="replace")
+        for row in csv.reader(io.StringIO(content)):
             if row:
-                first = row[0].strip()
-                if first.lower() not in {
+                candidate = row[0].strip()
+                if candidate.lower() not in {
                     "phone", "mobile", "number", "phone_number", "mobile_number"
                 }:
-                    raw_numbers.append(first)
+                    raw_numbers.append(candidate)
 
-    valid_numbers = []
-    seen = set()
+    valid_numbers, seen = [], set()
     invalid_count = 0
     for item in raw_numbers:
         phone = normalize_phone(item)
-        if not phone:
+        if phone is None:
             invalid_count += 1
         elif phone not in seen:
             seen.add(phone)
@@ -171,17 +173,17 @@ async def create_campaign(
 
     if not valid_numbers:
         return HTMLResponse(
-            "No valid phone numbers found. Use a format such as +919876543210.",
+            "No valid phone numbers were found. Enter numbers such as +919876543210.",
             status_code=400,
         )
     if len(valid_numbers) > 500:
-        return HTMLResponse("Maximum 500 unique recipients per demo campaign.", status_code=400)
+        return HTMLResponse("A demo campaign is limited to 500 unique recipients.", status_code=400)
 
     with connect() as conn:
         cursor = conn.execute(
             "INSERT INTO campaigns(created_at,message,total,status) VALUES(?,?,?,?)",
             (
-                datetime.now(timezone.utc).isoformat(),
+                datetime.now(timezone.utc).isoformat(timespec="seconds"),
                 message,
                 len(valid_numbers),
                 "DEMO ONLY — not sent",
@@ -195,7 +197,6 @@ async def create_campaign(
                 for phone in valid_numbers
             ],
         )
-
     return RedirectResponse(f"/campaign/{campaign_id}", status_code=303)
 
 

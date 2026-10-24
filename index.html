@@ -3,37 +3,82 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Bulk SMS Manager</title>
+  <title>Dashboard · Bulk SMS Manager</title>
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-<header><div><h1>Bulk SMS Manager</h1><p>Campaign dashboard · Demo mode</p></div><a class="header-link" href="/logout">Log out</a></header>
-<main>
-  <div class="notice"><strong>Demo mode:</strong> no real SMS messages are sent.</div>
-  <section class="card">
-    <h2>New campaign</h2>
-    <form action="/campaign" method="post" enctype="multipart/form-data">
-      <label for="message">Message (maximum 1000 characters)</label>
-      <textarea id="message" name="message" maxlength="1000" rows="4" required placeholder="Write your message..."></textarea>
-      <label for="numbers">Phone numbers</label>
-      <textarea id="numbers" name="numbers_text" rows="4" placeholder="+919876543210&#10;+14155552671"></textarea>
-      <p class="muted">Enter one number per line, or separate numbers with commas or spaces.</p>
-      <label for="contacts">Or upload a CSV file</label>
-      <input id="contacts" type="file" name="contacts_file" accept=".csv,text/csv">
-      <label class="checkbox"><input type="checkbox" name="consent" value="yes" required> I confirm all recipients have agreed to receive these messages.</label>
-      <button type="submit">Create demo campaign</button>
-    </form>
-  </section>
-  <section class="card">
-    <h2>Recent campaigns</h2>
-    {% if campaigns %}
-    <div class="table-wrap"><table><thead><tr><th>ID</th><th>Created (UTC)</th><th>Recipients</th><th>Status</th><th></th></tr></thead><tbody>
-    {% for campaign in campaigns %}
-      <tr><td>{{ campaign.id }}</td><td>{{ campaign.created_at[:19].replace('T',' ') }}</td><td>{{ campaign.total }}</td><td>{{ campaign.status }}</td><td><a href="/campaign/{{ campaign.id }}">Details</a></td></tr>
-    {% endfor %}
-    </tbody></table></div>
-    {% else %}<p class="muted">No campaigns yet.</p>{% endif %}
-  </section>
-</main>
+<div class="app-shell">
+  <aside class="sidebar">
+    <a class="brand" href="/"><span class="brand-mark small">B</span><span>Bulk SMS<span class="brand-light">Manager</span></span></a>
+    <div class="nav-label">WORKSPACE</div>
+    <a class="nav-item active" href="/"><span>▦</span> Dashboard</a>
+    <a class="nav-item" href="#new-campaign"><span>＋</span> New campaign</a>
+    <div class="sidebar-bottom">
+      <div class="demo-badge"><span class="dot"></span> Demo mode</div>
+      <a class="nav-item logout" href="/logout"><span>↪</span> Log out</a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <div><p class="eyebrow">WORKSPACE / OVERVIEW</p><h1>Dashboard</h1></div>
+      <a class="btn btn-outline" href="/logout">Log out <span>↗</span></a>
+    </header>
+
+    <div class="alert alert-warning"><strong>Demo mode:</strong> campaigns are recorded for testing only. No real SMS messages are sent.</div>
+
+    <section class="stats-grid">
+      <article class="stat-card"><div class="stat-label">Total campaigns</div><div class="stat-value">{{ total_campaigns }}</div><div class="stat-foot">Saved in this demo</div></article>
+      <article class="stat-card"><div class="stat-label">Recipients queued</div><div class="stat-value">{{ total_recipients }}</div><div class="stat-foot">Across all campaigns</div></article>
+      <article class="stat-card"><div class="stat-label">Delivery mode</div><div class="stat-value stat-word">Simulation</div><div class="stat-foot"><span class="status-pill neutral">Not sent</span></div></article>
+    </section>
+
+    <section class="panel" id="new-campaign">
+      <div class="section-heading"><div><p class="eyebrow">COMPOSE</p><h2>Create a campaign</h2><p class="subtext">Prepare a message for opted-in recipients.</p></div><span class="step-tag">01 / NEW</span></div>
+      <form action="/campaign" method="post" enctype="multipart/form-data" class="campaign-form">
+        <div class="field">
+          <div class="label-row"><label for="message">Message content</label><span class="field-hint">Maximum 1,000 characters</span></div>
+          <textarea id="message" name="message" rows="5" maxlength="1000" required placeholder="Type your message here…"></textarea>
+          <div class="char-count"><span id="char-count">0</span> / 1000 characters</div>
+        </div>
+        <div class="form-divider"><span>RECIPIENTS</span></div>
+        <div class="field">
+          <label for="numbers">Phone numbers</label>
+          <textarea id="numbers" name="numbers_text" rows="4" placeholder="+919876543210&#10;+14155552671&#10;One number per line, or separate with commas"></textarea>
+          <p class="field-hint">Include country code where possible. Duplicate numbers are removed automatically.</p>
+        </div>
+        <div class="upload-box">
+          <div class="upload-icon">↑</div><div class="upload-copy"><label for="contacts">Upload a contacts CSV</label><p class="field-hint">One phone number per row; an optional phone/mobile header is supported.</p></div>
+          <input id="contacts" type="file" name="contacts_file" accept=".csv,text/csv">
+        </div>
+        <label class="consent-check"><input type="checkbox" name="consent" value="yes" required><span>I confirm that these recipients have consented to receive messages.</span></label>
+        <div class="form-actions"><button class="btn btn-primary" type="submit">Create demo campaign <span>→</span></button><span class="field-hint">Up to 500 unique numbers per campaign</span></div>
+      </form>
+    </section>
+
+    <section class="panel">
+      <div class="section-heading"><div><p class="eyebrow">ACTIVITY</p><h2>Campaign history</h2><p class="subtext">Your 50 most recent campaigns.</p></div></div>
+      {% if campaigns %}
+      <div class="table-wrap"><table><thead><tr><th>Campaign</th><th>Created (UTC)</th><th>Recipients</th><th>Status</th><th></th></tr></thead><tbody>
+      {% for campaign in campaigns %}
+        <tr><td><span class="campaign-id">#{{ campaign.id }}</span><span class="message-preview">{{ campaign.message[:52] }}{% if campaign.message|length > 52 %}…{% endif %}</span></td><td class="date-cell">{{ campaign.created_at[:19].replace('T',' ') }}</td><td><span class="count-chip">{{ campaign.total }}</span></td><td><span class="status-pill neutral">{{ campaign.status }}</span></td><td><a class="table-link" href="/campaign/{{ campaign.id }}">View details →</a></td></tr>
+      {% endfor %}
+      </tbody></table></div>
+      {% else %}
+      <div class="empty-state"><div class="empty-icon">▤</div><h3>No campaigns yet</h3><p>Create your first demo campaign using the form above.</p><a class="btn btn-outline" href="#new-campaign">Create campaign</a></div>
+      {% endif %}
+    </section>
+    <footer class="page-footer">Bulk SMS Manager <span>·</span> Secure admin workspace <span>·</span> Demo only</footer>
+  </main>
+</div>
+<script>
+const message = document.getElementById("message");
+const count = document.getElementById("char-count");
+if (message && count) {
+  const update = () => count.textContent = message.value.length;
+  message.addEventListener("input", update);
+  update();
+}
+</script>
 </body>
 </html>
