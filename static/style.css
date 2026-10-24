@@ -1,0 +1,204 @@
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --ink: #172033;
+  --muted: #748096;
+  --line: #e6eaf1;
+  --brand: #4f46e5;
+  --bg: #f5f7fb;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+a { color: inherit; text-decoration: none; }
+
+.app-shell { min-height: 100vh; }
+
+.sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: 248px;
+  background: white;
+  border-right: 1px solid var(--line);
+  padding: 25px 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  font-size: 16px;
+  font-weight: 800;
+  padding: 0 9px 34px;
+}
+
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--brand);
+  color: white;
+  font-weight: 800;
+}
+
+.nav-label, .eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  color: #929bad;
+}
+
+.nav-label { padding: 0 12px 10px; }
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 12px;
+  border-radius: 9px;
+  color: #68748a;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.nav-item:hover, .nav-item.active {
+  background: #eeedff;
+  color: var(--brand);
+}
+
+.sidebar-bottom { margin-top: auto; }
+
+.main-content {
+  margin-left: 248px;
+  padding: 0 38px 30px;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  padding: 31px 0 25px;
+}
+
+.topbar h1 {
+  font-size: 28px;
+  margin: 0;
+  font-weight: 800;
+}
+
+.panel, .stat-card {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 22px;
+  box-shadow: 0 8px 30px rgba(22,34,59,.045);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.stat-label { color: var(--muted); font-size: 12px; }
+.stat-value { font-size: 30px; font-weight: 800; }
+
+.btn {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 15px;
+  border-radius: 8px;
+  border: 1px solid #dfe4ee;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-primary { background: var(--brand); color: white; }
+.btn-outline { background: white; color: var(--ink); }
+
+textarea, input[type="file"], input[type="password"] {
+  width: 100%;
+  border: 1px solid #dfe4ee;
+  border-radius: 8px;
+  background: #fbfcfe;
+  padding: 12px;
+  font: inherit;
+}
+
+textarea { resize: vertical; }
+.field { margin-bottom: 20px; }
+.field label { display: block; font-weight: 700; margin-bottom: 8px; }
+.field-hint { color: #9099aa; font-size: 11px; }
+
+.alert {
+  padding: 13px 16px;
+  border-radius: 9px;
+  margin-bottom: 22px;
+}
+
+.alert-warning {
+  background: #fff8e9;
+  border: 1px solid #f7dfaa;
+  color: #8c6110;
+}
+
+table { width: 100%; border-collapse: collapse; }
+th, td {
+  text-align: left;
+  padding: 13px;
+  border-bottom: 1px solid var(--line);
+}
+
+th { color: var(--muted); font-size: 11px; }
+.table-wrap { overflow-x: auto; }
+.table-link { color: var(--brand); font-weight: 700; }
+
+.status-pill {
+  display: inline-block;
+  background: #fff4df;
+  color: #9a6b0c;
+  border-radius: 6px;
+  padding: 5px 8px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+@media (max-width: 720px) {
+  .sidebar {
+    position: relative;
+    width: 100%;
+    padding: 15px;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .nav-label, .sidebar > .nav-item, .sidebar-bottom {
+    display: none;
+  }
+
+  .brand { padding: 0; }
+  .main-content { margin-left: 0; padding: 0 14px 22px; }
+  .topbar { padding: 22px 0; }
+  .topbar h1 { font-size: 24px; }
+  .stats-grid { grid-template-columns: 1fr; }
+  .panel, .stat-card { padding: 16px; }
+}
