@@ -2,7 +2,7 @@
 
 A small FastAPI project you can upload to GitHub and deploy on Render.
 
-**Important:** This is a safe demo. It does not send real SMS. It simulates campaigns and stores recipient statuses. Actual SMS requires a legitimate provider, credentials, recipient consent, opt-out handling, and compliance with local messaging rules. It is not an unlimited-free SMS service.
+**Important:** This is a demo. It does not send real SMS. It simulates campaigns and stores recipient statuses. Actual SMS requires a legitimate provider, credentials, recipient consent, opt-out handling, and compliance with local messaging rules.
 
 ## Features
 - Password-protected dashboard
