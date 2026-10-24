@@ -1,1 +1,141 @@
-<link rel="stylesheet" href="/static/style.css">
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bulk SMS Manager</title>
+    <link rel="stylesheet" href="/static/style.css">
+
+    <style>
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            gap: 22px;
+        }
+
+        .field textarea {
+            min-height: 130px;
+        }
+
+        .field input[type="file"] {
+            display: block;
+        }
+
+        .consent-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin: 18px 0;
+            color: #536078;
+        }
+
+        .consent-row input {
+            margin-top: 5px;
+        }
+
+        .form-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .welcome-text {
+            color: var(--muted);
+            margin-top: 5px;
+        }
+
+        .section-heading {
+            margin-top: 0;
+            margin-bottom: 6px;
+            font-size: 19px;
+            font-weight: 800;
+        }
+
+        .section-description {
+            margin-top: 0;
+            margin-bottom: 22px;
+            color: var(--muted);
+        }
+
+        .btn-primary {
+            background: var(--brand);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.92;
+        }
+
+        .notice {
+            background: #eef2ff;
+            border: 1px solid #dbe3ff;
+            color: #3730a3;
+            border-radius: 9px;
+            padding: 13px 16px;
+            margin-bottom: 22px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 28px 12px;
+            color: var(--muted);
+        }
+
+        @media (max-width: 720px) {
+            .form-actions .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-shell">
+
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-mark">S</div>
+                <span>SMS Manager</span>
+            </div>
+
+            <div class="nav-label">WORKSPACE</div>
+
+            <a href="/" class="nav-item active">
+                <span>▦</span>
+                Dashboard
+            </a>
+
+            <a href="#create-campaign" class="nav-item">
+                <span>✉</span>
+                Create Campaign
+            </a>
+
+            <a href="#campaign-history" class="nav-item">
+                <span>◷</span>
+                Campaign History
+            </a>
+
+            <div class="sidebar-bottom">
+                <div class="nav-label">ACCOUNT</div>
+                <a href="/logout" class="nav-item">
+                    <span>↪</span>
+                    Logout
+                </a>
+            </div>
+        </aside>
+
+        <main class="main-content">
+
+            <header class="topbar">
+                <div>
+                    <div class="eyebrow">OVERVIEW</div>
+                    <h1>Dashboard</h1>
+                    <p class="welcome-text">
+                        Manage your SMS campaigns in one place.
+                    </p>
+                </div>
+            </header>
+
+            <div class="notice
