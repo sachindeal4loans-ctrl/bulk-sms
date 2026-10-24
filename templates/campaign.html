@@ -1,0 +1,45 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMS Campaign</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <main class="main-content">
+        <header class="topbar">
+            <h1>Create SMS Campaign</h1>
+            <a href="/logout">Logout</a>
+        </header>
+
+        <section class="panel">
+            <h2>New Campaign</h2>
+
+            <form action="/campaigns" method="post" enctype="multipart/form-data">
+                <label for="message">SMS Message</label>
+                <textarea id="message" name="message" rows="5"
+                          maxlength="1600" required
+                          placeholder="Enter your SMS message"></textarea>
+
+                <label for="phones">Phone Numbers</label>
+                <textarea id="phones" name="phones" rows="5"
+                          placeholder="Enter one phone number per line"></textarea>
+
+                <label for="csv_file">Or upload a CSV file</label>
+                <input id="csv_file" name="csv_file" type="file"
+                       accept=".csv,text/csv">
+
+                <p class="help-text">
+                    Use this only for recipients who have agreed to receive your messages.
+                </p>
+
+                <button type="submit">Create Campaign</button>
+            </form>
+        </section>
+
+        <p><a href="/">Back to Dashboard</a></p>
+    </main>
+</body>
+</html>
