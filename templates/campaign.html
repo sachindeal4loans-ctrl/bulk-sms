@@ -1,85 +1,244 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Bulk SMS Manager</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campaign Details | Bulk SMS Manager</title>
     <link rel="stylesheet" href="/static/style.css">
+
+    <style>
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+            margin: 22px 0;
+        }
+
+        .detail-item {
+            padding: 18px;
+            background: #f8faff;
+            border: 1px solid #e6eaf1;
+            border-radius: 10px;
+            min-width: 0;
+        }
+
+        .detail-label {
+            font-size: 12px;
+            color: #748096;
+            margin-bottom: 6px;
+        }
+
+        .detail-value {
+            font-size: 17px;
+            font-weight: 700;
+            overflow-wrap: anywhere;
+        }
+
+        .message-box {
+            background: #f8faff;
+            border: 1px solid #e6eaf1;
+            padding: 16px;
+            border-radius: 10px;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        .page-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 22px;
+        }
+
+        .btn {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            padding: 11px 16px;
+            border-radius: 8px;
+            border: 1px solid #dfe4ee;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: #4f46e5;
+            color: white;
+            border-color: #4f46e5;
+        }
+
+        .btn-outline {
+            background: white;
+            color: #172033;
+        }
+
+        .status-note {
+            padding: 14px 16px;
+            margin-bottom: 22px;
+            border: 1px solid #dbe3ff;
+            background: #eef2ff;
+            color: #3730a3;
+            border-radius: 9px;
+        }
+
+        .status-pill {
+            display: inline-block;
+            background: #fff4df;
+            color: #9a6b0c;
+            border-radius: 6px;
+            padding: 5px 8px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        @media (max-width: 650px) {
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .panel {
+                padding: 16px;
+            }
+        }
+    </style>
 </head>
+
 <body>
+<div class="app-shell">
+
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-mark">S</div>
+            <span>SMS Manager</span>
+        </div>
+
+        <div class="nav-label">WORKSPACE</div>
+
+        <a href="/" class="nav-item">
+            <span>▦</span>
+            Dashboard
+        </a>
+
+        <a href="/#create-campaign" class="nav-item">
+            <span>✉</span>
+            Create Campaign
+        </a>
+
+        <a href="/#campaign-history" class="nav-item active">
+            <span>◷</span>
+            Campaign History
+        </a>
+
+        <div class="sidebar-bottom">
+            <div class="nav-label">ACCOUNT</div>
+            <a href="/logout" class="nav-item">
+                <span>↪</span>
+                Logout
+            </a>
+        </div>
+    </aside>
+
     <main class="main-content">
+
         <header class="topbar">
-            <h1>Bulk SMS Manager</h1>
-            <a href="/logout">Logout</a>
+            <div>
+                <div class="eyebrow">CAMPAIGN DETAILS</div>
+                <h1>Campaign #{{ campaign.id }}</h1>
+                <p style="color:var(--muted); margin:5px 0 0;">
+                    Review the campaign information and recipients.
+                </p>
+            </div>
         </header>
 
+        <div class="status-note">
+            <strong>Demo mode:</strong>
+            No real SMS messages were sent by this campaign.
+        </div>
+
+        <div class="page-actions">
+            <a href="/" class="btn btn-primary">Back to Dashboard</a>
+            <a href="/#campaign-history" class="btn btn-outline">
+                Campaign History
+            </a>
+        </div>
+
         <section class="panel">
-            <h2>Create SMS Campaign</h2>
+            <h2 style="margin-top:0;">Campaign Summary</h2>
 
-            <form action="/campaign" method="post"
-                  enctype="multipart/form-data">
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <div class="detail-label">Campaign ID</div>
+                    <div class="detail-value">#{{ campaign.id }}</div>
+                </div>
 
-                <label for="message">SMS Message</label>
-                <textarea id="message" name="message"
-                          rows="4" maxlength="1000"
-                          required></textarea>
+                <div class="detail-item">
+                    <div class="detail-label">Recipients</div>
+                    <div class="detail-value">{{ campaign.total }}</div>
+                </div>
 
-                <label for="numbers_text">Phone Numbers</label>
-                <textarea id="numbers_text" name="numbers_text"
-                          rows="5"
-                          placeholder="+919876543210&#10;+919876543211"></textarea>
+                <div class="detail-item">
+                    <div class="detail-label">Created At</div>
+                    <div class="detail-value">{{ campaign.created_at }}</div>
+                </div>
 
-                <label for="contacts_file">Upload CSV file</label>
-                <input id="contacts_file" name="contacts_file"
-                       type="file" accept=".csv">
+                <div class="detail-item">
+                    <div class="detail-label">Campaign Status</div>
+                    <div>
+                        <span class="status-pill">{{ campaign.status }}</span>
+                    </div>
+                </div>
+            </div>
 
-                <label>
-                    <input type="checkbox" name="consent"
-                           value="yes" required>
-                    I confirm these recipients have consented to receive messages.
-                </label>
-
-                <button type="submit">Create Campaign</button>
-            </form>
+            <h3>SMS Message</h3>
+            <div class="message-box">{{ campaign.message }}</div>
         </section>
 
         <section class="panel">
-            <h2>Campaign History</h2>
+            <h2 style="margin-top:0;">Recipient Details</h2>
+            <p style="color:var(--muted);">
+                Recipient statuses are simulated. No messages were sent.
+            </p>
 
-            {% if campaigns %}
+            {% if recipients %}
             <div class="table-wrap">
                 <table>
                     <thead>
                         <tr>
-                            <th>Campaign ID</th>
-                            <th>Created</th>
-                            <th>Recipients</th>
+                            <th>#</th>
+                            <th>Phone Number</th>
                             <th>Status</th>
                             <th>Details</th>
                         </tr>
                     </thead>
+
                     <tbody>
-                        {% for campaign in campaigns %}
+                        {% for recipient in recipients %}
                         <tr>
-                            <td>{{ campaign.id }}</td>
-                            <td>{{ campaign.created_at }}</td>
-                            <td>{{ campaign.total }}</td>
-                            <td>{{ campaign.status }}</td>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ recipient.phone }}</td>
                             <td>
-                                <a href="/campaign/{{ campaign.id }}">
-                                    View
-                                </a>
+                                <span class="status-pill">
+                                    {{ recipient.status }}
+                                </span>
                             </td>
+                            <td>{{ recipient.detail }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
             {% else %}
-            <p>No campaigns found.</p>
+            <p>No recipient records were found for this campaign.</p>
             {% endif %}
         </section>
+
+        <footer style="text-align:center; color:var(--muted);
+                       padding:12px 0 25px; font-size:12px;">
+            Bulk SMS Manager · Simulation mode
+        </footer>
+
     </main>
+</div>
 </body>
 </html>
+```
