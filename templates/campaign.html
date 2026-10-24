@@ -3,43 +3,83 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMS Campaign</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bulk SMS Manager</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
     <main class="main-content">
         <header class="topbar">
-            <h1>Create SMS Campaign</h1>
+            <h1>Bulk SMS Manager</h1>
             <a href="/logout">Logout</a>
         </header>
 
         <section class="panel">
-            <h2>New Campaign</h2>
+            <h2>Create SMS Campaign</h2>
 
-            <form action="/campaigns" method="post" enctype="multipart/form-data">
+            <form action="/campaign" method="post"
+                  enctype="multipart/form-data">
+
                 <label for="message">SMS Message</label>
-                <textarea id="message" name="message" rows="5"
-                          maxlength="1600" required
-                          placeholder="Enter your SMS message"></textarea>
+                <textarea id="message" name="message"
+                          rows="4" maxlength="1000"
+                          required></textarea>
 
-                <label for="phones">Phone Numbers</label>
-                <textarea id="phones" name="phones" rows="5"
-                          placeholder="Enter one phone number per line"></textarea>
+                <label for="numbers_text">Phone Numbers</label>
+                <textarea id="numbers_text" name="numbers_text"
+                          rows="5"
+                          placeholder="+919876543210&#10;+919876543211"></textarea>
 
-                <label for="csv_file">Or upload a CSV file</label>
-                <input id="csv_file" name="csv_file" type="file"
-                       accept=".csv,text/csv">
+                <label for="contacts_file">Upload CSV file</label>
+                <input id="contacts_file" name="contacts_file"
+                       type="file" accept=".csv">
 
-                <p class="help-text">
-                    Use this only for recipients who have agreed to receive your messages.
-                </p>
+                <label>
+                    <input type="checkbox" name="consent"
+                           value="yes" required>
+                    I confirm these recipients have consented to receive messages.
+                </label>
 
                 <button type="submit">Create Campaign</button>
             </form>
         </section>
 
-        <p><a href="/">Back to Dashboard</a></p>
+        <section class="panel">
+            <h2>Campaign History</h2>
+
+            {% if campaigns %}
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Campaign ID</th>
+                            <th>Created</th>
+                            <th>Recipients</th>
+                            <th>Status</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for campaign in campaigns %}
+                        <tr>
+                            <td>{{ campaign.id }}</td>
+                            <td>{{ campaign.created_at }}</td>
+                            <td>{{ campaign.total }}</td>
+                            <td>{{ campaign.status }}</td>
+                            <td>
+                                <a href="/campaign/{{ campaign.id }}">
+                                    View
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p>No campaigns found.</p>
+            {% endif %}
+        </section>
     </main>
 </body>
 </html>
